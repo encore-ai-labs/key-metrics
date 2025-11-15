@@ -66,6 +66,7 @@ body {
   border: 1px solid var(--terminal-border);
   padding: clamp(20px, 3vw, 32px);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .metric-card:hover {
@@ -101,13 +102,75 @@ body {
 }
 
 .metric-title {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--terminal-gray);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 12px;
   font-weight: 500;
   font-family: "JetBrains Mono", monospace;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.revenue-toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.revenue-toggle-switch input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 13px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.revenue-toggle-switch input[type="checkbox"]:checked + .toggle-slider {
+  background-color: #34c759;
+}
+
+.revenue-toggle-switch input[type="checkbox"]:checked + .toggle-slider::before {
+  transform: translateX(18px);
+}
+
+.toggle-label {
+  font-size: 0.7rem;
+  color: var(--terminal-gray);
+  font-family: "JetBrains Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.revenue-toggle-switch:hover .toggle-label {
+  color: var(--terminal-white);
 }
 
 .metric-value {

@@ -37,7 +37,7 @@ The dashboard displays the following metrics from your API:
 - **Monthly Recurring Revenue (MRR)**: Current monthly recurring revenue in USD
 - **Active Subscriptions**: Number of active paying subscriptions
 - **Active Trials**: Number of current trial users
-- **New Customers**: Number of new customers acquired in the past month
+- **New Users**: Number of new users acquired in the past month
 - **Revenue (Past Month)**: Total revenue generated in the past month
 - **Users Created Today**: Number of new users registered today
 - **Users Created (Last Hour)**: Number of users who signed up in the last hour

@@ -7,13 +7,19 @@ class MetricsDashboard {
     this.mrrHistoryKey = "mrrHistory";
     this.lastFetchKey = "lastFetchTime";
     this.cachedDataKey = "cachedMetricsData";
+    this.showingARRKey = "showingARR";
+    this.showingAnnualizedKey = "showingAnnualized";
     this.refreshThrottle = 10000;
+    this.showingARR = false;
+    this.showingAnnualized = false;
+    this.currentData = null;
 
     this.init();
   }
 
   async init() {
     await this.loadSettings();
+    this.loadTogglePreferences();
     this.setupEventListeners();
 
     if (this.apiUrl) {
@@ -47,6 +53,20 @@ class MetricsDashboard {
         this.hideSettings();
       }
     });
+
+    document.getElementById("revenueToggle").addEventListener("change", (e) => {
+      this.showingARR = e.target.checked;
+      this.saveTogglePreferences();
+      this.updateRevenueMetric();
+    });
+
+    document
+      .getElementById("monthlyRevenueToggle")
+      .addEventListener("change", (e) => {
+        this.showingAnnualized = e.target.checked;
+        this.saveTogglePreferences();
+        this.updateMonthlyRevenueMetric();
+      });
   }
 
   async loadSettings() {
@@ -65,6 +85,49 @@ class MetricsDashboard {
       document.getElementById("refreshInterval").value = this.refreshInterval;
     } catch (error) {
       console.error("Error loading settings:", error);
+    }
+  }
+
+  loadTogglePreferences() {
+    try {
+      const showingARR = localStorage.getItem(this.showingARRKey);
+      const showingAnnualized = localStorage.getItem(this.showingAnnualizedKey);
+
+      if (showingARR !== null) {
+        this.showingARR = showingARR === "true";
+      }
+
+      if (showingAnnualized !== null) {
+        this.showingAnnualized = showingAnnualized === "true";
+      }
+
+      // Update toggle checkboxes to match loaded preferences
+      const revenueToggle = document.getElementById("revenueToggle");
+      const monthlyRevenueToggle = document.getElementById(
+        "monthlyRevenueToggle"
+      );
+
+      if (revenueToggle) {
+        revenueToggle.checked = this.showingARR;
+      }
+
+      if (monthlyRevenueToggle) {
+        monthlyRevenueToggle.checked = this.showingAnnualized;
+      }
+    } catch (error) {
+      console.error("Error loading toggle preferences:", error);
+    }
+  }
+
+  saveTogglePreferences() {
+    try {
+      localStorage.setItem(this.showingARRKey, this.showingARR.toString());
+      localStorage.setItem(
+        this.showingAnnualizedKey,
+        this.showingAnnualized.toString()
+      );
+    } catch (error) {
+      console.error("Error saving toggle preferences:", error);
     }
   }
 
@@ -189,12 +252,13 @@ class MetricsDashboard {
   }
 
   updateDashboard(data) {
+    this.currentData = data;
     this.updateMetric("totalUsers", data.active_users || 0);
-    this.updateMetric("revenue", data.mrr || 0, "$");
+    this.updateRevenueMetric();
     this.updateMetric("activeSessions", data.active_subscriptions || 0);
     this.updateMetric("conversionRate", data.active_trials || 0);
     this.updateMetric("newCustomers", data.new_customers || 0);
-    this.updateMetric("monthlyRevenue", data.revenue || 0, "$");
+    this.updateMonthlyRevenueMetric();
     this.updateMetric("usersCreatedToday", data.users_created_today || 0);
     this.updateMetric(
       "usersCreatedLastHour",
@@ -204,7 +268,7 @@ class MetricsDashboard {
     this.storeMRRData(data.mrr || 0);
 
     this.updateMetricDisplay("usersChange", "Total Active");
-    this.updateMetricDisplay("revenueChange", "Monthly Recurring");
+    this.updateRevenueChangeLabel();
     this.updateMetricDisplay("sessionsChange", "Current Active");
     this.updateMetricDisplay("conversionChange", "Current Trials");
     this.updateMetricDisplay("newCustomersChange", "Past Month");
@@ -254,7 +318,7 @@ class MetricsDashboard {
 
       if (typeof value === "number") {
         if (value >= 1000000) {
-          formattedValue = (value / 1000000).toFixed(1) + "M";
+          formattedValue = (value / 1000000).toFixed(2) + "M";
         } else {
           formattedValue = value.toLocaleString();
         }
@@ -288,6 +352,64 @@ class MetricsDashboard {
       element.textContent = label;
       element.className = "metric-change neutral";
     }
+  }
+
+  updateRevenueMetric() {
+    if (!this.currentData) return;
+
+    const revenueTitle = document.getElementById("revenueTitle");
+    const toggleCheckbox = document.getElementById("revenueToggle");
+    const toggleSwitch = toggleCheckbox?.closest(".revenue-toggle-switch");
+    const toggleLabel = toggleSwitch?.querySelector(".toggle-label");
+
+    if (this.showingARR) {
+      const arrValue = this.currentData.arr || 0;
+      this.updateMetric("revenue", arrValue, "$");
+      if (revenueTitle) {
+        revenueTitle.textContent = "ARR";
+      }
+      if (toggleCheckbox) {
+        toggleCheckbox.checked = true;
+      }
+    } else {
+      const mrrValue = this.currentData.mrr || 0;
+      this.updateMetric("revenue", mrrValue, "$");
+      if (revenueTitle) {
+        revenueTitle.textContent = "MRR";
+      }
+      if (toggleLabel) {
+        toggleLabel.textContent = "ARR";
+      }
+      if (toggleCheckbox) {
+        toggleCheckbox.checked = false;
+      }
+    }
+    this.updateRevenueChangeLabel();
+  }
+
+  updateRevenueChangeLabel() {
+    const label = this.showingARR ? "Annual Recurring" : "Monthly Recurring";
+    this.updateMetricDisplay("revenueChange", label);
+  }
+
+  updateMonthlyRevenueMetric() {
+    if (!this.currentData) return;
+
+    const monthlyRevenueValue = this.currentData.revenue || 0;
+    const displayValue = this.showingAnnualized
+      ? monthlyRevenueValue * 12
+      : monthlyRevenueValue;
+    this.updateMetric("monthlyRevenue", displayValue, "$");
+
+    const toggleCheckbox = document.getElementById("monthlyRevenueToggle");
+    if (toggleCheckbox) {
+      toggleCheckbox.checked = this.showingAnnualized;
+    }
+
+    const changeLabel = this.showingAnnualized
+      ? "Annualized Run Rate"
+      : "Past Month";
+    this.updateMetricDisplay("monthlyRevenueChange", changeLabel);
   }
 
   updateActivityList(activities) {

@@ -12,7 +12,20 @@
         <h1>Key Metrics</h1>
         <div class="last-updated">
           Last updated: <span id="lastUpdated">Never</span>
-          <span id="cacheIndicator" style="display: none; color: #ff6b35; background: rgba(255,107,53,0.2); padding: 2px 6px; border-radius: 3px; margin-left: 8px; font-size: 0.8em; font-weight: bold;">[CACHED]</span>
+          <span
+            id="cacheIndicator"
+            style="
+              display: none;
+              color: #ff6b35;
+              background: rgba(255, 107, 53, 0.2);
+              padding: 2px 6px;
+              border-radius: 3px;
+              margin-left: 8px;
+              font-size: 0.8em;
+              font-weight: bold;
+            "
+            >[CACHED]</span
+          >
         </div>
       </header>
 
@@ -25,7 +38,14 @@
           </div>
 
           <div class="metric-card" id="metric2">
-            <div class="metric-title">Monthly Recurring Revenue</div>
+            <div class="metric-title">
+              <span id="revenueTitle">MRR</span>
+              <label class="revenue-toggle-switch">
+                <input type="checkbox" id="revenueToggle" />
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">ARR</span>
+              </label>
+            </div>
             <div class="metric-value" id="revenue">--</div>
             <div class="metric-change" id="revenueChange">--</div>
           </div>
@@ -43,13 +63,20 @@
           </div>
 
           <div class="metric-card" id="metric5">
-            <div class="metric-title">New Customers (Past Month)</div>
+            <div class="metric-title">New Users (Past Month)</div>
             <div class="metric-value" id="newCustomers">--</div>
             <div class="metric-change" id="newCustomersChange">Past Month</div>
           </div>
 
           <div class="metric-card" id="metric6">
-            <div class="metric-title">Revenue (Past Month)</div>
+            <div class="metric-title">
+              <span>Revenue</span>
+              <label class="revenue-toggle-switch">
+                <input type="checkbox" id="monthlyRevenueToggle" />
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">Annualized</span>
+              </label>
+            </div>
             <div class="metric-value" id="monthlyRevenue">--</div>
             <div class="metric-change" id="monthlyRevenueChange">
               Past Month
@@ -63,9 +90,11 @@
           </div>
 
           <div class="metric-card" id="metric8">
-            <div class="metric-title">Users Created (Last Hour)</div>
+            <div class="metric-title">Users Created (Last Hr)</div>
             <div class="metric-value" id="usersCreatedLastHour">--</div>
-            <div class="metric-change" id="usersCreatedLastHourChange">Last Hour</div>
+            <div class="metric-change" id="usersCreatedLastHourChange">
+              Last Hour
+            </div>
           </div>
 
           <div class="metric-card wide" id="metric9">
